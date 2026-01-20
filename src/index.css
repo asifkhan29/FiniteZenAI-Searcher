@@ -1,0 +1,366 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Finitezen Design System - Architectural Interface
+   Inspired by Attio's calm, infrastructure-grade aesthetic
+   Grayscale dominant, extreme whitespace, thin typography
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+@layer base {
+  :root {
+    /* Core palette - Grayscale dominant */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
+    
+    /* Surface hierarchy */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+    
+    /* Primary - Pure black for authority */
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Light gray surfaces */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 8%;
+    
+    /* Muted - For subtle text and backgrounds */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    
+    /* Accent - Minimal, functional only */
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 8%;
+    
+    /* Functional accent - Very subtle blue for interactive elements */
+    --interactive: 220 12% 50%;
+    --interactive-foreground: 0 0% 100%;
+    
+    /* Destructive */
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Borders - 1px low opacity */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 8%;
+    
+    /* Radius - Subtle, not rounded */
+    --radius: 0.375rem;
+    
+    /* Grid pattern */
+    --grid-color: 0 0% 0%;
+    --grid-opacity: 0.03;
+    
+    /* Spacing scale */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2.5rem;
+    --space-xl: 4rem;
+    --space-2xl: 6rem;
+    --space-3xl: 10rem;
+    
+    /* Chat UI specific */
+    --chat-bg: 0 0% 98%;
+    --chat-input-bg: 0 0% 100%;
+    --chat-border: 0 0% 88%;
+    --ai-thinking: 0 0% 60%;
+  }
+
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 6%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 95%;
+    --interactive: 220 12% 60%;
+    --interactive-foreground: 0 0% 100%;
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
+    --grid-color: 0 0% 100%;
+    --grid-opacity: 0.02;
+    --chat-bg: 0 0% 10%;
+    --chat-input-bg: 0 0% 8%;
+    --chat-border: 0 0% 20%;
+    --ai-thinking: 0 0% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+  }
+
+  /* Typography scale - Thin, architectural */
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-light tracking-tight;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-light tracking-tight;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl font-normal tracking-tight;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  h4 {
+    @apply text-lg font-normal;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    @apply text-muted-foreground;
+    font-weight: 400;
+  }
+}
+
+@layer components {
+  /* Dotted grid background */
+  .bg-grid-pattern {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(var(--grid-color) / var(--grid-opacity)) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+
+  /* Container with extreme whitespace */
+  .container-architectural {
+    @apply max-w-5xl mx-auto px-6 md:px-8;
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    @apply py-20 md:py-28 lg:py-36;
+  }
+
+  .section-spacing-sm {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  /* Architectural card - minimal border, no shadow */
+  .card-architectural {
+    @apply bg-card border border-border rounded-md;
+  }
+
+  /* Text styles */
+  .text-headline {
+    @apply text-foreground font-light;
+  }
+
+  .text-subheadline {
+    @apply text-muted-foreground text-lg md:text-xl font-normal max-w-2xl;
+  }
+
+  .text-body {
+    @apply text-muted-foreground text-base;
+  }
+
+  .text-caption {
+    @apply text-muted-foreground text-sm;
+  }
+
+  .text-overline {
+    @apply text-xs uppercase tracking-widest text-muted-foreground font-medium;
+  }
+
+  /* Beta badge */
+  .badge-beta {
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-secondary text-muted-foreground rounded border border-border;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground text-sm font-medium rounded-md transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-transparent text-foreground text-sm font-medium border border-border rounded-md transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors;
+  }
+
+  /* Chat UI components */
+  .chat-container {
+    @apply bg-[hsl(var(--chat-bg))] border border-[hsl(var(--chat-border))] rounded-lg overflow-hidden;
+  }
+
+  .chat-input {
+    @apply w-full bg-[hsl(var(--chat-input-bg))] border border-[hsl(var(--chat-border))] rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-border;
+  }
+
+  .chat-message {
+    @apply p-4 border-b border-[hsl(var(--chat-border))] last:border-b-0;
+  }
+
+  /* Result card */
+  .result-card {
+    @apply bg-card border border-border rounded-md p-4 transition-colors hover:bg-secondary/50;
+  }
+
+  /* Bento grid */
+  .bento-grid {
+    @apply grid gap-4 md:gap-6;
+  }
+
+  .bento-item {
+    @apply bg-secondary/30 border border-border rounded-md p-6 md:p-8;
+  }
+
+  /* Form elements */
+  .form-label {
+    @apply text-sm font-medium text-foreground mb-1.5 block;
+  }
+
+  .form-input {
+    @apply w-full bg-background border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-border transition-colors;
+  }
+
+  .form-textarea {
+    @apply w-full bg-background border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-border transition-colors resize-none;
+  }
+
+  .form-select {
+    @apply w-full bg-background border border-border rounded-md px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-border transition-colors appearance-none cursor-pointer;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-stagger {
+    animation: fadeUp 0.5s ease-out forwards;
+  }
+
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+
+  /* Typing cursor */
+  .typing-cursor::after {
+    content: '|';
+    animation: blink 1s infinite;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* AI thinking dots */
+  .thinking-dots span {
+    animation: thinking 1.4s infinite ease-in-out both;
+  }
+
+  .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+  .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0s; }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes thinking {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Selection */
+::selection {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--foreground));
+}
