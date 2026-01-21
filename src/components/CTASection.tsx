@@ -19,7 +19,7 @@ const CTASection = () => {
             Try the AI search and find real people, real prices, real answers.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link to="/" className="btn-primary">
+            <Link to="/ai-search" className="btn-primary">
               Try AI Search (Beta)
             </Link>
             <Link to="/add-listing" className="btn-secondary">
