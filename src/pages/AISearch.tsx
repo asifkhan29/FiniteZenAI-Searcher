@@ -73,7 +73,7 @@ const AISearch = () => {
       }
 
       const response = await fetch(
-        `http://localhost:8081/api/search?${params.toString()}`
+        `https://aisearchengine.onrender.com/api/search?${params.toString()}`
       );
 
       const data = await response.json();

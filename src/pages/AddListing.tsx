@@ -195,7 +195,7 @@ const AddListing = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8081/api/ingest", {
+      const res = await fetch("https://aisearchengine.onrender.com/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
