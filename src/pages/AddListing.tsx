@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { Helmet } from 'react-helmet-async'; // 👈 added for SEO
+import { Helmet } from 'react-helmet-async';
 import {
   ChevronRight,
   Send,
@@ -10,6 +10,7 @@ import {
   Sparkles,
   User,
   Zap,
+  PartyPopper
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -133,6 +134,8 @@ const springConfig = { type: "spring", stiffness: 300, damping: 30 } as const;
 const AddListing = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // 👈 Success state
+  
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -165,8 +168,63 @@ const AddListing = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // ... Fetch Logic
-    setLoading(false);
+
+    const allQuestions = Object.values(categoryQuestions).flat();
+    let description = `I am ${formData.name}, a ${formData.category} located in ${formData.city || "N/A"}, ${formData.country || "N/A"}. Contact: ${formData.contact || "not provided"}. `;
+
+    const qaParts = Object.entries(answers)
+      .map(([id, answer]) => {
+        const questionText = allQuestions.find(q => q.id === id)?.q || id;
+        return `Regarding "${questionText}", the response is: ${answer}`;
+      })
+      .join("\n\n");
+
+    description += qaParts;
+
+    const payload = {
+      entityType: formData.category,
+      description,
+      metadata: {
+        name: formData.name,
+        country: formData.country,
+        city: formData.city,
+        contact: formData.contact,
+      },
+    };
+
+    try {
+      const res = await fetch("https://aisearchengine.onrender.com/api/ingest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 200) {
+        setIsSuccess(true);
+        
+        // Wait 2 seconds, then reset
+        setTimeout(() => {
+          setIsSuccess(false);
+          setCurrentStep(1);
+          setFormData({
+            name: "",
+            category: "",
+            country: "",
+            city: "",
+            contact: "",
+            enableChatbot: true,
+          });
+          setAnswers({});
+        }, 2000);
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error. Check console.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const steps = [
@@ -178,56 +236,14 @@ const AddListing = () => {
 
   return (
     <>
-      {/* 👇 SEO Meta Tags */}
       <Helmet>
-        {/* Primary Meta Tags */}
-        <title>AI Indexing – Add Your Listing to the AI Layer | FiniteZen</title>
-        <meta name="description" content="Index your professional identity for the next generation of search. Add your listing as a freelancer, influencer, agency, or job opening to the AI layer on ai.finitezen.com." />
-        <meta name="keywords" content="AI indexing, add listing, freelancer, influencer, agency, job, AI profile, professional listing, AI search, finitezen" />
-        <meta name="author" content="FiniteZen" />
-        <link rel="canonical" href="https://ai.finitezen.com/add-listing" />
-
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://ai.finitezen.com/add-listing" />
-        <meta property="og:title" content="AI Indexing – Add Your Listing to the AI Layer" />
-        <meta property="og:description" content="Index your professional identity for the next generation of search. Add your listing as a freelancer, influencer, agency, or job opening." />
-        <meta property="og:image" content="https://ai.finitezen.com/og-image.jpg" /> {/* replace with actual image */}
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://ai.finitezen.com/add-listing" />
-        <meta property="twitter:title" content="AI Indexing – Add Your Listing to the AI Layer" />
-        <meta property="twitter:description" content="Index your professional identity for the next generation of search. Add your listing as a freelancer, influencer, agency, or job opening." />
-        <meta property="twitter:image" content="https://ai.finitezen.com/twitter-image.jpg" /> {/* replace with actual image */}
-
-        {/* Structured Data (JSON-LD) */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Add Listing – AI Indexing",
-            "description": "Submit your profile to be indexed in the AI layer for better discoverability.",
-            "url": "https://ai.finitezen.com/add-listing",
-            "potentialAction": {
-              "@type": "CreateAction",
-              "object": {
-                "@type": "ProfilePage",
-                "name": "AI Listing"
-              }
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "FiniteZen",
-              "url": "https://finitezen.com"
-            }
-          })}
-        </script>
+        <title>AI Indexing – FiniteZen</title>
+        <meta name="description" content="Index your professional identity for the next generation of search." />
       </Helmet>
 
       <div className="min-h-screen bg-[#FBFBFA] text-[#1A1A18] selection:bg-primary/10">
         <Header />
-        <main className="container max-w-6xl mx-auto py-20 md:py-28 px-4 md:px-6">
+        <main className="container max-w-6xl mx-auto py-12 md:py-28 px-4 md:px-6">
           
           {/* Hero Section */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 md:mb-16 text-center">
@@ -237,130 +253,149 @@ const AddListing = () => {
             <h1 className="text-3xl md:text-5xl font-tight tracking-tight mb-4 font-semibold">
               Index yourself in the <span className="text-primary italic">AI Layer.</span>
             </h1>
-            <p className="text-slate-500 text-sm md:text-lg max-w-xl mx-auto px-4">
-              Build your professional identity for the next generation of search.
-            </p>
           </motion.div>
 
-          {/* ... rest of your form component remains exactly the same ... */}
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* Mobile Stepper / Desktop Sidebar */}
-            <div className="w-full lg:col-span-3 flex lg:flex-col overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 gap-6 lg:gap-8 sticky top-0 lg:top-32 bg-[#FBFBFA] z-10 py-2 lg:py-0 no-scrollbar">
-              {steps.map((s) => (
-                <div key={s.step} className="flex items-center gap-3 md:gap-4 shrink-0">
-                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                      currentStep >= s.step ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-white border border-slate-200 text-slate-400"
-                    }`}>
-                    {currentStep > s.step ? <CheckCircle2 size={18} /> : s.icon}
+            
+            {/* Minimalist Stepper: Mobile (Current Only) / Desktop (All) */}
+            <div className="w-full lg:col-span-3 sticky top-0 lg:top-32 bg-[#FBFBFA] z-10 py-4 lg:py-0 border-b lg:border-none border-slate-200 lg:block">
+              {/* Mobile View: Show only current active step */}
+              <div className="lg:hidden flex items-center justify-between px-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                    {steps[currentStep - 1].icon}
                   </div>
-                  <span className={`text-sm font-medium whitespace-nowrap transition-colors ${currentStep === s.step ? "text-primary" : "text-slate-400"}`}>
-                    {s.label}
-                  </span>
-                  {s.step !== 4 && <div className="lg:hidden w-8 h-[1px] bg-slate-200 ml-2" />}
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Step {currentStep} of 4</p>
+                    <p className="text-sm font-semibold text-primary">{steps[currentStep - 1].label}</p>
+                  </div>
                 </div>
-              ))}
+                <div className="flex gap-1">
+                   {steps.map((s) => (
+                     <div key={s.step} className={`h-1 w-4 rounded-full ${currentStep >= s.step ? "bg-primary" : "bg-slate-200"}`} />
+                   ))}
+                </div>
+              </div>
+
+              {/* Desktop View: Show all steps sidebar */}
+              <div className="hidden lg:flex flex-col gap-8">
+                {steps.map((s) => (
+                  <div key={s.step} className="flex items-center gap-4 group">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                        currentStep >= s.step ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-white border border-slate-200 text-slate-400"
+                      }`}>
+                      {currentStep > s.step ? <CheckCircle2 size={18} /> : s.icon}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors ${currentStep === s.step ? "text-primary" : "text-slate-400"}`}>
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Form Content */}
-            <div className="w-full lg:col-span-9 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="w-full lg:col-span-9 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px] flex flex-col justify-center">
               <form onSubmit={handleSubmit} className="p-6 md:p-10">
                 <LayoutGroup>
                   <AnimatePresence mode="wait">
-                    {currentStep === 1 && (
-                      <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={springConfig} className="space-y-6 md:space-y-8">
-                        <div className="space-y-1">
-                          <h2 className="text-xl font-semibold">Basic Information</h2>
-                          <p className="text-slate-500 text-sm">Let's start with the basics for your profile.</p>
+                    
+                    {/* Success Screen Overlay */}
+                    {isSuccess ? (
+                      <motion.div 
+                        key="success" 
+                        initial={{ opacity: 0, scale: 0.9 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        exit={{ opacity: 0 }}
+                        className="flex flex-col items-center text-center space-y-4 py-12"
+                      >
+                        <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center shadow-inner">
+                          <PartyPopper size={48} className="animate-bounce" />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          <div className="md:col-span-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Display Name</label>
-                            <input 
-                              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-slate-50/30" 
-                              value={formData.name} 
-                              onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
-                              placeholder="Enter your name or brand" 
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Category</label>
-                            <select className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-                              <option value="">Select Category</option>
-                              <option value="freelancer">Freelancer</option>
-                              <option value="influencer">Influencer</option>
-                              <option value="agency">Agency</option>
-                              <option value="job">Job Opening</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Location (City)</label>
-                            <input className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="e.g. New York" />
-                          </div>
-                        </div>
-
-                        <button type="button" onClick={nextStep} disabled={!formData.name || !formData.category} className="w-full py-4 bg-primary text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-50">
-                          Continue to Essentials <ChevronRight size={18} />
-                        </button>
+                        <h2 className="text-3xl font-bold">Successfully Published!</h2>
+                        <p className="text-slate-500">Your AI agent is now live in the search layer.</p>
+                        <p className="text-xs text-slate-400">Returning to start...</p>
                       </motion.div>
-                    )}
-
-                    {(currentStep === 2 || currentStep === 3) && (
-                      <motion.div key={`step${currentStep}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={springConfig} className="space-y-6 md:space-y-8">
-                        <div className="space-y-1">
-                          <h2 className="text-xl font-semibold">{currentStep === 2 ? "Core Details" : "Additional Context"}</h2>
-                          <p className="text-slate-500 text-sm">These responses will be used to train your AI persona.</p>
-                        </div>
-
-                        <div className="space-y-6">
-                          {activeQuestions.map((item) => (
-                            <div key={item.id} className="space-y-2">
-                              <label className="text-sm font-medium text-slate-700">{item.q}</label>
-                              <textarea 
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50/30 resize-none" 
-                                rows={3} 
-                                value={answers[item.id] || ""} 
-                                onChange={(e) => handleAnswerChange(item.id, e.target.value)} 
-                                placeholder="Describe here..." 
-                              />
+                    ) : (
+                      <>
+                        {currentStep === 1 && (
+                          <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={springConfig} className="space-y-8">
+                            <div className="space-y-1">
+                              <h2 className="text-xl font-semibold">Basic Information</h2>
+                              <p className="text-slate-500 text-sm">Let's start with the basics for your profile.</p>
                             </div>
-                          ))}
-                        </div>
-
-                        <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 pt-4">
-                          <button type="button" onClick={prevStep} className="w-full md:flex-1 py-4 border border-slate-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
-                            <ArrowLeft size={18} /> Back
-                          </button>
-                          <button type="button" onClick={nextStep} className="w-full md:flex-[2] py-4 bg-primary text-white rounded-xl font-semibold hover:brightness-110 transition-all">
-                            {currentStep === 3 ? "Review & Publish" : "Next Step"}
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {currentStep === 4 && (
-                      <motion.div key="step4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={springConfig} className="space-y-8 text-center py-4">
-                        <div className="w-20 h-20 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
-                          <CheckCircle2 size={40} />
-                        </div>
-                        <div className="space-y-2 px-4">
-                          <h2 className="text-2xl font-semibold">Ready to index?</h2>
-                          <p className="text-slate-500">Double check your contact info before we deploy your AI.</p>
-                        </div>
-
-                        <div className="max-w-md mx-auto space-y-4 px-4">
-                          <div className="text-left">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Public Contact Information</label>
-                            <input className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30" value={formData.contact} onChange={(e) => setFormData({ ...formData, contact: e.target.value })} placeholder="email@example.com" />
-                          </div>
-                          <div className="flex flex-col-reverse md:flex-row gap-3 pt-6">
-                            <button type="button" onClick={prevStep} className="w-full md:flex-1 py-4 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all">Back</button>
-                            <button type="submit" disabled={loading} className="w-full md:flex-[2] bg-primary text-white py-4 rounded-xl font-semibold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:brightness-110 transition-all">
-                              {loading ? <Loader2 className="animate-spin" /> : <><Send size={18} /> Deploy AI Agent</>}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="md:col-span-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Display Name</label>
+                                <input className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50/30" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Enter your name or brand" />
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Category</label>
+                                <select className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30 appearance-none" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+                                  <option value="">Select Category</option>
+                                  <option value="freelancer">Freelancer</option>
+                                  <option value="influencer">Influencer</option>
+                                  <option value="agency">Agency</option>
+                                  <option value="job">Job Opening</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block">Location (City)</label>
+                                <input className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="e.g. Mumbai" />
+                              </div>
+                            </div>
+                            <button type="button" onClick={nextStep} disabled={!formData.name || !formData.category} className="w-full py-4 bg-primary text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-50 shadow-lg shadow-primary/20">
+                              Continue to Essentials <ChevronRight size={18} />
                             </button>
-                          </div>
-                        </div>
-                      </motion.div>
+                          </motion.div>
+                        )}
+
+                        {(currentStep === 2 || currentStep === 3) && (
+                          <motion.div key={`step${currentStep}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={springConfig} className="space-y-8">
+                            <div className="space-y-1">
+                              <h2 className="text-xl font-semibold">{currentStep === 2 ? "Core Details" : "Additional Context"}</h2>
+                              <p className="text-slate-500 text-sm">Step {currentStep} – Helping AI understand your value.</p>
+                            </div>
+                            <div className="space-y-6">
+                              {activeQuestions.map((item) => (
+                                <div key={item.id} className="space-y-2">
+                                  <label className="text-sm font-medium text-slate-700">{item.q}</label>
+                                  <textarea className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50/30 resize-none" rows={3} value={answers[item.id] || ""} onChange={(e) => handleAnswerChange(item.id, e.target.value)} placeholder="Type your response..." />
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 pt-4">
+                              <button type="button" onClick={prevStep} className="w-full md:flex-1 py-4 border border-slate-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+                                <ArrowLeft size={18} /> Back
+                              </button>
+                              <button type="button" onClick={nextStep} className="w-full md:flex-[2] py-4 bg-primary text-white rounded-xl font-semibold hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                                {currentStep === 3 ? "Review & Publish" : "Next Step"}
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+
+                        {currentStep === 4 && (
+                          <motion.div key="step4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={springConfig} className="space-y-8">
+                             <div className="space-y-1 text-center">
+                              <h2 className="text-xl font-semibold">Final Verification</h2>
+                              <p className="text-slate-500 text-sm">Ensure your contact is correct for inquiries.</p>
+                            </div>
+                            <div className="max-w-md mx-auto space-y-6 w-full">
+                              <div>
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 block text-center">Contact Email or Phone</label>
+                                <input className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-slate-50/30 text-center text-lg" value={formData.contact} onChange={(e) => setFormData({ ...formData, contact: e.target.value })} placeholder="hello@finitezen.com" />
+                              </div>
+                              <div className="flex flex-col-reverse md:flex-row gap-3 pt-6 w-full">
+                                <button type="button" onClick={prevStep} className="w-full md:flex-1 py-4 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all">Back</button>
+                                <button type="submit" disabled={loading} className="w-full md:flex-[2] bg-primary text-white py-4 rounded-xl font-semibold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+                                  {loading ? <Loader2 className="animate-spin" /> : <><Send size={18} /> Deploy AI Agent</>}
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </>
                     )}
                   </AnimatePresence>
                 </LayoutGroup>
