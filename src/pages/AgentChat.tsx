@@ -187,7 +187,7 @@ const AgentChat = () => {
 
     try {
       // Calling your Spring Boot API
-      const response = await fetch(`https://aisearchengine.onrender.com/api/discovery/ask/${agentId}`, {
+      const response = await fetch(`https://aidiscoveryplatform.onrender.com/api/discovery/ask/${agentId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
