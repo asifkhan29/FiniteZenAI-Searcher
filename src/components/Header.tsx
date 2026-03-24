@@ -9,7 +9,7 @@ const Header = () => {
 
   const navLinks = [
     { path: "/", label: "AI Search" },
-    { path: "/add-listing", label: "Add Yourself" },
+    // { path: "/add-listing", label: "Add Yourself" },
     { path: "/how-it-works", label: "How It Works" },
   ];
 
@@ -50,7 +50,7 @@ const Header = () => {
 
             {/* Desktop CTA */}
             <div className="hidden md:flex items-center gap-4">
-              <Link to="/ai-search" className="btn-primary text-sm py-2 px-4">
+              <Link to="/" className="btn-primary text-sm py-2 px-4">
                 Try AI Search
               </Link>
             </div>

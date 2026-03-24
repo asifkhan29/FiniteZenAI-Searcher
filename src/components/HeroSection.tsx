@@ -51,7 +51,7 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex items-center justify-center gap-4"
           >
-            <Link to="/ai-search" className="btn-primary">
+            <Link to="/" className="btn-primary">
               Try AI Search (Beta)
             </Link>
             <Link to="/how-it-works" className="btn-secondary">

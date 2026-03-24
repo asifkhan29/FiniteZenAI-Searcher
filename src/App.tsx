@@ -19,10 +19,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/add-listing" element={<AddListing />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/ai-search" element={<AISearch />} />
+          <Route path="/how-it-works" element={<Index />} />
+          {/* <Route path="/add-listing" element={<AddListing />} /> */}
+          <Route path="/" element={<AISearch />} />
           <Route path="/agent-chat" element={<AgentChat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
